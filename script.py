@@ -21,7 +21,7 @@ from jupyter_dash import JupyterDash
 
 
 # Carga de bases de datos de Whirlpool
-df = pd.read_excel(r'C:\Users\hecto\OneDrive\Desktop\WORKFILE_Supsa_Energy_Audit_Information_Actualizada.xlsx')
+df = pd.read_excel(r'WORKFILE_Supsa_Energy_Audit_Information_Actualizada.xlsx')
 #Cambio de nombre para evitar espacios
 df = df.set_axis(['ID','Production_Line','Platform','Familia','Test_Date','Refrigerant','Model_Number','Serial_Number','Sensores','Posicion','Target','Energy_Consumed(kWh/yr)','Porc_Below_Rating_Point','RC_Temp_Average_P1','RC1_Temp_P1','RC2_Temp_P1','RC3_Temp_P1','FC_Temp_Average_P1','FC1_Temp_P1','FC2_Temp_P1','FC3_Temp_P1','Energy_Usage(kWh/day)_P1','Porc_Run_Time_P1','Avg_Ambient_Temp_P1','Temp_Setting_P2','RC_Temp_Average_P2','RC1_Temp_P2','RC2_Temp_P2','RC3_Temp_P2','FC_Temp_Average_P2','FC1_Temp_P2','FC2_Temp_P2','FC3_Temp_P2','Energy_Usage(kWh/day)_P2','Porc_Run_Time_P2','Avg_Ambient_Temp_P2','Ability','Compressor','Supplier','E-star/Std.'], axis=1)
 # Cambio de % a valor sin el % para evitar temas en análisis
