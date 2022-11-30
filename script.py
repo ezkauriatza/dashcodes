@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[646]:
+# In[136]:
 
 
 # Carga de librerias basicas
@@ -9,23 +9,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import date, timedelta
-
-# #Carga de libreria para entrenar y probar
-# from sklearn.model_selection import train_test_split
-
-# #Carga de libreria para Evaluacion
-# from sklearn.metrics import r2_score, mean_squared_error
-
-# #Carga de libreria para Lineal
-# from sklearn.linear_model import LinearRegression
-
-# #Carga de libreria para KNN
-# from sklearn.neighbors import KNeighborsRegressor
-# from sklearn import neighbors
-
-# #Carga de libreria para Random Forest
-# from sklearn.ensemble import RandomForestRegressor
+from datetime import date, timedelta, datetime
 
 #Carga de librerias de Dash para correr Dashboard
 import dash_bootstrap_components as dbc
@@ -33,21 +17,22 @@ from dash import Dash, dash_table, dcc, html, Input, Output, State
 from jupyter_dash import JupyterDash
 
 
-# In[647]:
+# In[137]:
 
 
 # Carga de bases de datos de Whirlpool
-df = pd.read_excel(r'WORKFILE_Supsa_Energy_Audit_Information_Actualizada.xlsx')
+df = pd.read_excel(r'C:\Users\hecto\OneDrive\Desktop\WORKFILE_Supsa_Energy_Audit_Information_Actualizada.xlsx')
 #Cambio de nombre para evitar espacios
 df = df.set_axis(['ID','Production_Line','Platform','Familia','Test_Date','Refrigerant','Model_Number','Serial_Number','Sensores','Posicion','Target','Energy_Consumed(kWh/yr)','Porc_Below_Rating_Point','RC_Temp_Average_P1','RC1_Temp_P1','RC2_Temp_P1','RC3_Temp_P1','FC_Temp_Average_P1','FC1_Temp_P1','FC2_Temp_P1','FC3_Temp_P1','Energy_Usage(kWh/day)_P1','Porc_Run_Time_P1','Avg_Ambient_Temp_P1','Temp_Setting_P2','RC_Temp_Average_P2','RC1_Temp_P2','RC2_Temp_P2','RC3_Temp_P2','FC_Temp_Average_P2','FC1_Temp_P2','FC2_Temp_P2','FC3_Temp_P2','Energy_Usage(kWh/day)_P2','Porc_Run_Time_P2','Avg_Ambient_Temp_P2','Ability','Compressor','Supplier','E-star/Std.'], axis=1)
 # Cambio de % a valor sin el % para evitar temas en análisis
 df['Porc_Below_Rating_Point'] = df['Porc_Below_Rating_Point'].replace("%","")
 df['Porc_Below_Rating_Point'] = pd.to_numeric(df['Porc_Below_Rating_Point'])*100
+del df['Temp_Setting_P2']
 #df['Test_Date'] = df['Test_Date'].dt.strftime("%d/%m/%Y") no usar... dejar para fut ref
 df.head()
 
 
-# In[648]:
+# In[138]:
 
 
 app = JupyterDash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -84,29 +69,23 @@ sidebar = html.Div(
                 style={"background": "white", "color": "black"}),
         html.Br(),
         html.Br(),
-#         html.Button('Últimos 15 días', id='ult_15d_button'),
-#         html.Button('Últimos 30 días', id='ult_30d_button'),
-#         html.Button('Últimos 6 meses', id='ult_6m_button'),
-#         html.Button('Todo 2022', id='ult_2022_button'),
-#         html.Br(),
-#         html.Br(),
         html.H4("Posición",  style={"color": "white", "font-weight": "bold"}),
         dcc.Checklist(options=[1,2], value=[1,2], style={"color": "white","font-size": "20px"}, inline=True, id="pos_checklist", labelStyle={'background':'#1a1919','padding':'0rem 1rem','border-radius':'0.3rem'}),
         html.Br(),
         html.H4("Familia", style={"color": "white", "font-weight": "bold"}),
-        dcc.Dropdown(np.append('Todas',df['Familia'].unique()),'Todas', id="fam_dropdown"),
+        dcc.Dropdown(sorted(np.append('Todas',df['Familia'].unique())),'Todas', id="fam_dropdown"),
         html.Br(),
         html.H4("Refrigerante", style={"color": "white", "font-weight": "bold"}),
-        dcc.Checklist(options=df['Refrigerant'].unique(), value=df['Refrigerant'].unique(), style={"color": "white","font-size": "20px"}, inline=True, id="ref_checklist", labelStyle={'background':'#1a1919','padding':'0rem 1rem','border-radius':'0.3rem'}),
+        dcc.Checklist(options=sorted(df['Refrigerant'].unique()), value=df['Refrigerant'].unique(), style={"color": "white","font-size": "20px"}, inline=True, id="ref_checklist", labelStyle={'background':'#1a1919','padding':'0rem 1rem','border-radius':'0.3rem'}),
         html.Br(),
         html.H4("Lineas de Producción", style={"color": "white", "font-weight": "bold"}),
-        dcc.Checklist(options=df['Production_Line'].unique(), value=df['Production_Line'].unique(), style={"color": "white","font-size": "20px"}, inline=True, id="lineaprod_checklist", labelStyle={'background':'#1a1919','padding':'0rem 1rem','border-radius':'0.3rem'}),
+        dcc.Checklist(options=sorted(df['Production_Line'].unique()), value=df['Production_Line'].unique(), style={"color": "white","font-size": "20px"}, inline=True, id="lineaprod_checklist", labelStyle={'background':'#1a1919','padding':'0rem 1rem','border-radius':'0.3rem'}),
         html.Br(),
         html.H4("Plataforma", style={"color": "white", "font-weight": "bold"}),
-        dcc.Dropdown(np.append('Todas',df['Platform'].unique()), 'Todas', id="plat_dropdown"),
+        dcc.Dropdown(sorted(np.append('Todas',df['Platform'].unique())), 'Todas', id="plat_dropdown"),
         html.Br(),
         html.H4("Proveedor", style={"color": "white", "font-weight": "bold"}),
-        dcc.Dropdown(np.append('Todas',df['Supplier'].unique()), 'Todas', id="prov_dropdown"),
+        dcc.Dropdown(sorted(np.append('Todas',df['Supplier'].unique())), 'Todas', id="prov_dropdown"),
         #html.Br(),
         #html.Button('Resetear Filtros', id='reset_filters_button', style={"background": "#8a0404", "color": "white","font-size": "16px","width":"21rem"}),
     ],
@@ -129,10 +108,10 @@ content = html.Div([
             width=2),
     dbc.Col([dbc.Row(html.H4("Nombre de Plataforma mas repetida", style={"color": "#1a1919", "font-weight": "bold", "textAlign": "center", "font-size": "18px"})), 
              dbc.Row(html.H2(id="mode_platform_txt", style={"color": "#1a1919","textAlign": "center", "font-size": "16px"}))],
-            width=2),
-    dbc.Col([dbc.Row(html.H4("CPK", style={"color": "#1a1919", "font-weight": "bold", "textAlign": "center", "font-size": "18px"})), 
+            width=3),
+    dbc.Col([dbc.Row(html.H4("Cálculo de CPK", style={"color": "#1a1919", "font-weight": "bold", "textAlign": "center", "font-size": "18px"})), 
              dbc.Row(html.H2(id="cpk_txt", style={"color": "#1a1919","textAlign": "center", "font-size": "16px"}))],
-            width=2)
+            width=1)
     ]), 
     style={"background-color": "#f4b610","margin-left": "23rem", 'verticalAlign': 'middle'}
     ),
@@ -169,7 +148,7 @@ app.layout = html.Div(
 )
 
 
-# In[649]:
+# In[139]:
 
 
 df_sorted = df.sort_values(by='Test_Date')
@@ -246,7 +225,7 @@ def update_rc_fig(posicion,familia,refrigerante,linea_prod,plataforma,proveedor,
     return [dcc.Graph(id='linegraph',figure=fig)]
 
 
-# In[650]:
+# In[140]:
 
 
 @app.callback(
@@ -334,7 +313,7 @@ def update_fc_fig(posicion,familia,refrigerante,linea_prod,plataforma,proveedor,
 #         return [1,2], 'Todas', ['R134','R600'], [2,3,4], 'Todas', 'Todas'
 
 
-# In[651]:
+# In[141]:
 
 
 @app.callback(
@@ -412,7 +391,7 @@ def update_txt_numbers(posicion,familia,refrigerante,linea_prod,plataforma,prove
     return avg_energycons, avg_brp, mode_fam, mode_prodline, mode_platform, cpk
 
 
-# In[652]:
+# In[142]:
 
 
 @app.callback(
@@ -481,7 +460,7 @@ def update_tbls(posicion,familia,refrigerante,linea_prod,plataforma,proveedor,f_
     return top5_df, bot5_df
 
 
-# In[653]:
+# In[143]:
 
 
 @app.callback(
@@ -543,6 +522,7 @@ def update_energy_graph(posicion,familia,refrigerante,linea_prod,plataforma,prov
     temp2 = temp.groupby('Familia')[['Energy_Consumed(kWh/yr)','Target']].median().reset_index()
     #Inicio de creacion de gráficas y datos duros
     fig = px.bar(temp2, x="Familia", y='Energy_Consumed(kWh/yr)',text_auto=True)
+    fig.update_traces(marker_color='#f4b610')
     fig.add_scatter(x=temp2["Familia"], y=temp2["Target"], name="Target", text=temp2['Target'], textposition="top center")
     fig.update_layout(
     title='Mediana del Consumo (kWh/año) y Target por Familia',
@@ -558,26 +538,8 @@ def update_energy_graph(posicion,familia,refrigerante,linea_prod,plataforma,prov
     return [dcc.Graph(id='bar-and-line-graph',figure=fig)]
 
 
-# In[654]:
-
-
-# DEJAR PARA DESPUES NO SE TIENE TIEMPO PARA BOTONES AHORITA
-# @app.callback([
-#     [Output('dates-picker', 'start_date'), Output('dates-picker', 'end_date')],
-#     Input('ult_15d_button', 'n_clicks')
-#     ]
-# )
-        
-# def update_dates(clicks):
-#     today = date.today().strftime("%d/%m/%Y")
-#     days_ago = today - timedelta(days=15)
-#     if clicks is not None:
-#         return days_ago, today
-
-
-# In[655]:
+# In[144]:
 
 
 if __name__=='__main__':
-	app.run_server(debug=True)
-
+	app.run_server(debug=True, port=2929)
